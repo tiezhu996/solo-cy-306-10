@@ -74,6 +74,7 @@ CREATE TABLE IF NOT EXISTS comments (
   user_id BIGINT UNSIGNED NOT NULL,
   rating INT NOT NULL DEFAULT 5,
   content TEXT,
+  is_pinned TINYINT(1) NOT NULL DEFAULT 0,
   created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   PRIMARY KEY (id),
   KEY idx_comments_activity (activity_id)

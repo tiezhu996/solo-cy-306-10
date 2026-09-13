@@ -9,6 +9,7 @@ type Comment struct {
 	UserID     uint64    `gorm:"not null" json:"user_id"`
 	Rating     int       `gorm:"not null;default:5" json:"rating"`
 	Content    string    `gorm:"type:text" json:"content"`
+	IsPinned   bool      `gorm:"not null;default:false" json:"is_pinned"`
 	CreatedAt  time.Time `json:"created_at"`
 }
 

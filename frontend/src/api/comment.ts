@@ -15,3 +15,11 @@ export function listMyComments() {
 export function deleteComment(id: number) {
   return request.delete(`/comments/${id}`)
 }
+
+export function pinComment(activityId: number, commentId: number) {
+  return request.post(`/activities/${activityId}/comments/${commentId}/pin`)
+}
+
+export function unpinComment(activityId: number, commentId: number) {
+  return request.delete(`/activities/${activityId}/comments/${commentId}/pin`)
+}

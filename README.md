@@ -156,8 +156,10 @@ cy-306/
 | POST | /api/v1/registrations/:id/review | 审核报名 |
 | POST | /api/v1/check-ins | 凭证/扫码签到 |
 | GET | /api/v1/check-ins | 签到记录 |
-| GET | /api/v1/activities/:id/comments | 活动评论列表 |
+| GET | /api/v1/activities/:id/comments | 活动评论列表（置顶在前，其余按时间倒序） |
 | POST | /api/v1/activities/:id/comments | 发表评论 |
+| POST | /api/v1/activities/:id/comments/:commentId/pin | 置顶评论（活动组织者/管理员，每活动最多一条） |
+| DELETE | /api/v1/activities/:id/comments/:commentId/pin | 取消置顶评论（活动组织者/管理员） |
 | GET | /api/v1/comments/mine | 我的评论 |
 | DELETE | /api/v1/comments/:id | 删除评论 |
 | POST | /api/v1/activities/:id/favorite | 收藏活动 |
@@ -173,7 +175,7 @@ cy-306/
 - 在线报名：名额校验、报名截止校验、防重复报名、凭证号生成、审核与取消。
 - 签到管理：凭证号签到、扫码签到、签到率统计、报名名单导出 CSV。
 - 活动日历：月历视图展示活动分布，日期格子显示活动数量，点击日期展开当天活动。
-- 评论收藏：评分评论、平均分展示、收藏与取消收藏。
+- 评论收藏：评分评论、评论置顶（每活动最多一条，置顶排前）、平均分展示、收藏与取消收藏。
 - 消息通知：报名成功、审核结果、签到成功自动通知。
 - 角色权限：JWT + RBAC（user/organizer/admin），操作审计日志。
 

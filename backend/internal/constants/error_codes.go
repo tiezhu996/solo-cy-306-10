@@ -21,6 +21,7 @@ const (
 	CodeInvalidVoucher     = 40402
 	CodeReviewConflict     = 40905
 	CodeCancelConflict     = 40906
+	CodeCommentNotBelong   = 40907
 	CodeUploadTooLarge     = 41300
 	CodeUnsupportedType    = 41500
 )

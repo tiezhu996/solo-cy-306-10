@@ -121,7 +121,8 @@ func appErrorStatus(code int) int {
 	case constants.CodeNotFound, constants.CodeUserNotFound, constants.CodeInvalidVoucher:
 		return http.StatusNotFound
 	case constants.CodeConflict, constants.CodeActivityFull, constants.CodeDuplicateSignup,
-		constants.CodeAlreadyCheckedIn, constants.CodeReviewConflict, constants.CodeCancelConflict:
+		constants.CodeAlreadyCheckedIn, constants.CodeReviewConflict, constants.CodeCancelConflict,
+		constants.CodeCommentNotBelong:
 		return http.StatusConflict
 	case constants.CodeValidationFailed:
 		return http.StatusUnprocessableEntity

@@ -30,7 +30,7 @@
             </el-form-item>
             <el-button type="primary" @click="submitComment">发表评论</el-button>
           </el-form>
-          <CommentList :activity-id="activity.id" />
+          <CommentList :activity-id="activity.id" :organizer-id="activity.organizer_id" />
         </el-tab-pane>
       </el-tabs>
 

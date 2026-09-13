@@ -9,6 +9,7 @@ import (
 	"gbevent/internal/constants"
 	"gbevent/internal/dto"
 	"gbevent/internal/middleware"
+	"gbevent/internal/repository"
 	"gbevent/internal/service"
 	"gbevent/internal/util"
 
@@ -86,11 +87,56 @@ func (h *CommentHandler) Delete(c *gin.Context) {
 	OK(c, nil)
 }
 
+// Pin 置顶评论（活动组织者或管理员）。
+func (h *CommentHandler) Pin(c *gin.Context) {
+	activityID, commentID, ok := h.parsePinParams(c, "pin")
+	if !ok {
+		return
+	}
+	if err := h.svc.Pin(activityID, commentID, middleware.GetUserID(c), middleware.GetUserRole(c)); err != nil {
+		h.wrapError(c, err, "Comment pin failed")
+		return
+	}
+	OKWithMessage(c, constants.MsgCommentPinned, nil)
+}
+
+// Unpin 取消置顶评论（活动组织者或管理员）。
+func (h *CommentHandler) Unpin(c *gin.Context) {
+	activityID, commentID, ok := h.parsePinParams(c, "unpin")
+	if !ok {
+		return
+	}
+	if err := h.svc.Unpin(activityID, commentID, middleware.GetUserID(c), middleware.GetUserRole(c)); err != nil {
+		h.wrapError(c, err, "Comment unpin failed")
+		return
+	}
+	OKWithMessage(c, constants.MsgCommentUnpinned, nil)
+}
+
+// parsePinParams 解析置顶/取消置顶接口的活动 ID 与评论 ID。
+func (h *CommentHandler) parsePinParams(c *gin.Context, action string) (uint64, uint64, bool) {
+	activityID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		Fail(c, http.StatusBadRequest, constants.CodeBadRequest, "Comment "+action+": invalid activity id")
+		return 0, 0, false
+	}
+	commentID, err := strconv.ParseUint(c.Param("commentId"), 10, 64)
+	if err != nil {
+		Fail(c, http.StatusBadRequest, constants.CodeBadRequest, "Comment "+action+": invalid comment id")
+		return 0, 0, false
+	}
+	return activityID, commentID, true
+}
+
 func (h *CommentHandler) wrapError(c *gin.Context, err error, ctx string) {
 	var appErr *util.AppError
 	if errors.As(err, &appErr) {
 		h.logger.Warn("comment handler error", "context", ctx, "error", appErr.Error())
 		Fail(c, appErrorStatus(appErr.Code), appErr.Code, appErr.Message)
+		return
+	}
+	if errors.Is(err, repository.ErrNotFound) {
+		Fail(c, http.StatusNotFound, constants.CodeNotFound, constants.MsgCommentNotFound)
 		return
 	}
 	h.logger.Error("comment handler error", "context", ctx, "error", err.Error())

@@ -68,3 +68,50 @@ func (s *CommentService) Delete(id, operatorID uint64, operatorRole string) erro
 	s.logger.Info(constants.LogCommentDeleteSuccess, "comment_id", id)
 	return nil
 }
+
+// Pin 置顶评论（活动组织者或管理员；每个活动最多一条置顶，新置顶会替换旧置顶）。
+func (s *CommentService) Pin(activityID, commentID, operatorID uint64, operatorRole string) error {
+	if err := s.checkPinPermission(activityID, commentID, operatorID, operatorRole, "pin"); err != nil {
+		return err
+	}
+	if err := s.repo.Pin(activityID, commentID); err != nil {
+		s.logger.Error(constants.LogCommentPinFailed, "comment_id", commentID, "error", err)
+		return util.Wrap(err, "Comment[id=%d] pin failed", commentID)
+	}
+	s.logger.Info(constants.LogCommentPinSuccess, "comment_id", commentID, "activity_id", activityID)
+	return nil
+}
+
+// Unpin 取消置顶评论（活动组织者或管理员）。
+func (s *CommentService) Unpin(activityID, commentID, operatorID uint64, operatorRole string) error {
+	if err := s.checkPinPermission(activityID, commentID, operatorID, operatorRole, "unpin"); err != nil {
+		return err
+	}
+	if err := s.repo.Unpin(activityID, commentID); err != nil {
+		s.logger.Error(constants.LogCommentUnpinFailed, "comment_id", commentID, "error", err)
+		return util.Wrap(err, "Comment[id=%d] unpin failed", commentID)
+	}
+	s.logger.Info(constants.LogCommentUnpinSuccess, "comment_id", commentID, "activity_id", activityID)
+	return nil
+}
+
+// checkPinPermission 校验评论归属与操作者权限（活动组织者或管理员）。
+func (s *CommentService) checkPinPermission(activityID, commentID, operatorID uint64, operatorRole, action string) error {
+	c, err := s.repo.FindByID(commentID)
+	if err != nil {
+		return util.Wrap(err, "Comment[id=%d] %s find failed", commentID, action)
+	}
+	if c.ActivityID != activityID {
+		return util.NewAppError(constants.CodeCommentNotBelong,
+			"Comment[id="+itoa(commentID)+"] "+action+" failed: "+constants.MsgCommentNotBelong+" (activity_id="+itoa(activityID)+")")
+	}
+	a, _, err := s.activitySvc.Get(activityID)
+	if err != nil {
+		return err
+	}
+	if !IsOrganizer(operatorID, operatorRole, a.OrganizerID) {
+		return util.NewAppError(constants.CodeForbidden,
+			"Comment[id="+itoa(commentID)+"] "+action+" forbidden: "+constants.MsgCommentPinForbidden+" (role="+operatorRole+", organizer_id="+itoa(a.OrganizerID)+")")
+	}
+	return nil
+}

@@ -30,7 +30,8 @@ func ErrorHandler(logger *slog.Logger) gin.HandlerFunc {
 			case constants.CodeNotFound, constants.CodeUserNotFound, constants.CodeInvalidVoucher:
 				status = http.StatusNotFound
 			case constants.CodeConflict, constants.CodeActivityFull, constants.CodeDuplicateSignup,
-				constants.CodeAlreadyCheckedIn, constants.CodeReviewConflict, constants.CodeCancelConflict:
+				constants.CodeAlreadyCheckedIn, constants.CodeReviewConflict, constants.CodeCancelConflict,
+				constants.CodeCommentNotBelong:
 				status = http.StatusConflict
 			case constants.CodeTooManyRequests:
 				status = http.StatusTooManyRequests
